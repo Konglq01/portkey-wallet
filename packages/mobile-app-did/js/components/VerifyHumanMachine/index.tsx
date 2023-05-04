@@ -10,21 +10,21 @@ const TIME_OUT = 30000; // recaptcha timeout 30 seconds
 async function verifyHumanMachine(language: any) {
   let timer: undefined | NodeJS.Timer;
   return new Promise((resolve, reject) => {
-    OverlayModal.show(
+    const key = OverlayModal.show(
       <Recaptcha
         lang={language}
         headerComponent={null}
         siteKey={Config.RECAPTCHA_SITE_KEY}
         baseUrl={Config.RECAPTCHA_BASE_URL}
         onVerify={token => {
+          OverlayModal.hideKey(key);
           resolve(token as string);
-          OverlayModal.hide();
         }}
         onExpire={() => {
           reject('expire');
         }}
         onClose={type => {
-          OverlayModal.hide();
+          OverlayModal.hideKey(key);
           if (type !== 'verified') reject();
         }}
         webViewProps={{
@@ -33,7 +33,7 @@ async function verifyHumanMachine(language: any) {
           },
           onLoadStart: () => {
             timer = setBackgroundTimeout(() => {
-              OverlayModal.hide();
+              OverlayModal.hideKey(key);
               reject('time out');
             }, TIME_OUT);
           },
